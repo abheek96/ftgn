@@ -17,8 +17,9 @@ def preprocess(data_name):
       u = int(e[0])
       i = int(e[1])
 
-      ts = float(e[2])
-      label = float(e[3])  # int(e[3])
+      #  Change for Reddit or Wikipedia
+      label = float(e[2])  # int(e[3])
+      ts = float(e[3])
 
       feat = np.array([float(x) for x in e[4:]])
 
@@ -39,6 +40,7 @@ def preprocess(data_name):
 def reindex(df, bipartite=True):
   new_df = df.copy()
   if bipartite:
+
     assert (df.u.max() - df.u.min() + 1 == len(df.u.unique()))
     assert (df.i.max() - df.i.min() + 1 == len(df.i.unique()))
 
@@ -65,6 +67,8 @@ def run(data_name, bipartite=True):
   OUT_NODE_FEAT = './data/ml_{}_node.npy'.format(data_name)
 
   df, feat = preprocess(PATH)
+
+  # df.to_csv('./data/check2.csv')
   new_df = reindex(df, bipartite)
 
   empty = np.zeros(feat.shape[1])[np.newaxis, :]

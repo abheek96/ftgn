@@ -43,6 +43,29 @@ def eval_edge_prediction(model, negative_edge_sampler, data, n_neighbors, batch_
       val_ap.append(average_precision_score(true_label, pred_score))
       val_auc.append(roc_auc_score(true_label, pred_score))
 
+      # print(f'Positive probs: {pos_prob}')
+      print(f'Pos probs shape: {pos_prob.cpu().numpy().shape}')
+
+      y_pred_pos = pos_prob.cpu().numpy().reshape(-1, 1)
+      y_pred_neg = neg_prob.cpu().numpy()
+
+      print(f'Y_pred_pos shape: {y_pred_pos.shape}')
+      print(f'Y_neg_pos shape: {y_pred_neg.shape}')
+      optimistic_rank = (y_pred_neg >= y_pred_pos).sum(axis=1)
+      # print(optimistic_rank)
+      pessimistic_rank = (y_pred_neg > y_pred_pos).sum(axis=1)
+      # print(pessimistic_rank)
+      ranking_list = 0.5 * (optimistic_rank + pessimistic_rank) + 1
+      # print(ranking_list)
+      hitsK_list = (ranking_list <= 10).astype(np.float32)
+      mrr_list = 1./ranking_list.astype(np.float32)
+      print(f'MRR_list:{mrr_list.mean()}')
+      break
+      # return {
+      #         f'hits@{k_value}': hitsK_list.mean(),
+      #         'mrr': mrr_list.mean()
+      #         }
+
   return np.mean(val_ap), np.mean(val_auc)
 
 
